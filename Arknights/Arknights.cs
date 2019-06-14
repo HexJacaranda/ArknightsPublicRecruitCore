@@ -154,14 +154,18 @@ namespace Arknights
         }
         public IEnumerable<KeyValuePair<string[], Operator[]>> BestOf(string[] Tags, Func<Operator, bool> Filter)
         {
+            if (Tags == null)
+                yield break;
             var pairs = AllOf(Tags, Filter);
-            var mins = from pair in pairs select pair.Value.MinOf(Operator.Comparator);
+            var mins = (from pair in pairs select pair.Value.MinOf(Operator.Comparator)).Where(min => min != null);
             var local_max = mins.MaxOf(Operator.Comparator);
             if (local_max == null)
                 yield break;
             foreach (var pair in pairs)
             {
                 var min = pair.Value.MinOf(Operator.Comparator);
+                if (min == null)
+                    continue;
                 if (local_max.Rank > min.Rank)
                     continue;
                 var candidate = pair.Value.Where(target => target.Rank == local_max.Rank).ToArray();
